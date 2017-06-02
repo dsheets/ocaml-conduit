@@ -88,7 +88,7 @@ type server = [
   | `OpenSSL of server_tls_config
   | `TLS_native of server_tls_config
   | `TCP of [ `Port of int ]
-  | `Unix_domain_socket of [ `File of string ]
+  | `Unix_domain_socket of [ `File of string | `Fd of Lwt_unix.file_descr sexp_opaque ]
   | `Vchan_direct of int * string
   | `Vchan_domain_socket of string  * string
   | `Launchd of string
@@ -334,6 +334,8 @@ let serve ?backlog ?timeout ?stop
   | `Unix_domain_socket (`File path) ->
     let sockaddr = Unix.ADDR_UNIX path in
     Sockaddr_server.init ~on:(`Sockaddr sockaddr) ?backlog ?timeout ?stop callback
+  | `Unix_domain_socket (`Fd fd) ->
+    Sockaddr_server.init ~on:(`Socket fd) ?backlog ?timeout ?stop callback
   | `TLS (`Crt_file_path certfile, `Key_file_path keyfile, pass, `Port port) ->
     serve_with_default_tls ?timeout ?stop ~ctx ~certfile ~keyfile
       ~pass ~port callback

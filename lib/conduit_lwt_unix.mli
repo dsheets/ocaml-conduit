@@ -78,6 +78,7 @@ type server_tls_config =
    - [`OpenSSL _]: Force use of Lwt OpenSSL bindings to connect.
    - [`TCP (`Port port)]: Listen on the specified TCPv4 port.
    - [`Unix_domain_socket (`File path)]: Use UNIX domain sockets to listen on the path.
+   - [`Unix_domain_socket (`Fd path)]: Use an already listening UNIX domain socket fd to serve
    - [`Vchan_direct (domid, port)]: Listen for the remote VM on the [domid], [port] tuple.
    - [`Vchan_domain_socket (domain, port_name)]: Use the Vchan name resolution to listen
    - [`Launchd name]: uses MacOS X launchd to start the service, via the name
@@ -89,7 +90,7 @@ type server = [
   | `OpenSSL of server_tls_config
   | `TLS_native of server_tls_config
   | `TCP of [ `Port of int ]
-  | `Unix_domain_socket of [ `File of string ]
+  | `Unix_domain_socket of [ `File of string | `Fd of Lwt_unix.file_descr sexp_opaque ]
   | `Vchan_direct of int * string
   | `Vchan_domain_socket of string  * string
   | `Launchd of string
